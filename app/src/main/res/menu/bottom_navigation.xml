@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/navigation_profile"
+        android:color="#fff"
+        android:title="profile"
+        android:icon="@drawable/profile"/>
+    <item
+        android:id="@+id/navigation_map"
+        android:title="map"
+        android:icon="@drawable/map"/>
+    <item
+        android:id="@+id/navigation_star"
+        android:title="stars"
+        android:icon="@drawable/stars" />
+    <item
+        android:id="@+id/navigation_settings"
+        android:title="settings"
+        android:icon="@drawable/settings" />
+</menu>
