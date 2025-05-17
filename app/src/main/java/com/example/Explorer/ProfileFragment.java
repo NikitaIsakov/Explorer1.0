@@ -1,4 +1,4 @@
-package com.example.myapplication3;
+package com.example.Explorer;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;

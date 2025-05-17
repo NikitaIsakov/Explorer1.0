@@ -19,6 +19,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "My Application3"
+rootProject.name = "Explorer"
 include(":app")
  

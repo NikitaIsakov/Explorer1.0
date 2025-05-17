@@ -1,4 +1,4 @@
-package com.example.myapplication3;
+package com.example.Explorer;
 
 import org.junit.Test;
 

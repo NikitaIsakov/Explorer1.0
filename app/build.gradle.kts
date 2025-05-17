@@ -3,11 +3,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.myapplication3"
+    namespace = "com.example.Explorer"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.example.myapplication3"
+        applicationId = "com.example.Explorer"
         minSdk = 24
         targetSdk = 35
         versionCode = 1
