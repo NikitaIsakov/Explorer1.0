@@ -1,62 +1,91 @@
 package com.example.Explorer;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
-import androidx.fragment.app.Fragment;
-
-import com.yandex.mapkit.MapKitFactory;
-import com.yandex.mapkit.geometry.Point;
-import com.yandex.mapkit.map.CameraPosition;
-import com.yandex.mapkit.mapview.MapView;
-import com.yandex.mapkit.Animation;
+import org.osmdroid.config.Configuration;
+import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
+import org.osmdroid.views.MapView;
+import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider;
+import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay;
 
 public class MapFragment extends Fragment {
     private MapView mapView;
+    private MyLocationNewOverlay locationOverlay;
+    private static final int REQUEST_LOCATION_PERMISSION = 1;
+
+    private final ActivityResultLauncher<String> locationPermissionRequest =
+        registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
+            if (isGranted) {
+                enableLocation();
+            }
+        });
 
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        MapKitFactory.setApiKey("101b87ca-0d24-48ad-b7f8-a9a932102329");
-        MapKitFactory.initialize(requireContext());
-    }
-
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
+        Configuration.getInstance().setUserAgentValue(getContext().getPackageName());
+
         View view = inflater.inflate(R.layout.fragment_map, container, false);
         mapView = view.findViewById(R.id.mapView);
 
-        mapView.getMap().move(
-                new CameraPosition(
-                        new Point(55.751574, 37.573856),
-                        10.0f,
-                        0.0f,
-                        0.0f
-                ),
-                new Animation(Animation.Type.SMOOTH, 0),
-                null
-        );
+        mapView.setTileSource(TileSourceFactory.MAPNIK);
+        mapView.setMultiTouchControls(true);
+        mapView.getController().setZoom(15.0);
+
+        locationOverlay = new MyLocationNewOverlay(
+                new GpsMyLocationProvider(getContext()), mapView);
+        locationOverlay.enableMyLocation();
+        mapView.getOverlays().add(locationOverlay);
+
+        if (checkLocationPermission()) {
+            enableLocation();
+        } else {
+            requestLocationPermission();
+        }
 
         return view;
     }
 
-    @Override
-    public void onStop() {
-        mapView.onStop();
-        MapKitFactory.getInstance().onStop();
-        super.onStop();
+    private boolean checkLocationPermission() {
+        return ContextCompat.checkSelfPermission(requireContext(),
+                Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+    }
+
+    private void requestLocationPermission() {
+        ActivityCompat.requestPermissions(requireActivity(),
+                new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                REQUEST_LOCATION_PERMISSION);
+    }
+
+    private void enableLocation() {
+        if (locationOverlay != null && checkLocationPermission()) {
+            locationOverlay.enableMyLocation();
+            locationOverlay.enableFollowLocation();
+            mapView.getController().setCenter(locationOverlay.getMyLocation());
+        }
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
-        MapKitFactory.getInstance().onStart();
-        mapView.onStart();
+    public void onResume() {
+        super.onResume();
+        mapView.onResume();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        mapView.onPause();
     }
 }
