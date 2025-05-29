@@ -1,5 +1,10 @@
 package com.example.Explorer;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
@@ -8,12 +13,21 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.room.Room;
 
 import com.example.Explorer.database.AppDatabase;
 import com.example.Explorer.database.LocationEntity;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Locale;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -25,11 +39,14 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String WEATHER_API_URL = "https://api.openweathermap.org/data/2.5/";
     private static final String API_KEY = "f660a2fb1e4bad108d6160b7f58c555f";
-    private static final String CITY_NAME = "Moscow";
-    public BottomNavigationView bottomNav;
+    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1001;
+    private BottomNavigationView bottomNav;
     private AppDatabase database;
-    private String weather;
+    private String weather = "99°";
+    private String currentCity = "Unknown";
     private WeatherAPI weatherAPI;
+    private FusedLocationProviderClient fusedLocationClient;
+    private Geocoder geocoder;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -37,11 +54,11 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         database = AppDatabase.getDatabase(this);
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        geocoder = new Geocoder(this, Locale.getDefault());
 
         setupRetrofit();
-
-        fetchWeatherData();
-
+        requestLocation();
         bottomNav = findViewById(R.id.bottom_navigation);
         bottomNav.setOnItemSelectedListener(navListener);
 
@@ -52,6 +69,80 @@ public class MainActivity extends AppCompatActivity {
             bottomNav.setSelectedItemId(R.id.navigation_profile);
         }
     };
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                getLastLocation();
+            } else {
+                Toast.makeText(this, "Location permission denied", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    private void getLastLocation() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+
+        fusedLocationClient.getLastLocation()
+                .addOnSuccessListener(this, new OnSuccessListener<Location>() {
+                    @Override
+                    public void onSuccess(Location location) {
+                        if (location != null) {
+                            getCityName(location.getLatitude(), location.getLongitude());
+                            saveLocationToDatabase(location);
+                        } else {
+                            Toast.makeText(MainActivity.this,
+                                    "Unable to get location", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+    }
+
+    private void saveLocationToDatabase(Location location) {
+        new Thread(() -> {
+            LocationEntity locationEntity = new LocationEntity();
+            locationEntity.latitude = location.getLatitude();
+            locationEntity.longitude = location.getLongitude();
+            locationEntity.name = currentCity;
+            locationEntity.timestamp = System.currentTimeMillis();
+
+            database.locationDao().insert(locationEntity);
+        }).start();
+    }
+    private void getCityName(double latitude, double longitude) {
+        try {
+            List<Address> addresses = geocoder.getFromLocation(latitude, longitude, 1);
+            if (addresses != null && !addresses.isEmpty()) {
+                currentCity = addresses.get(0).getLocality();
+                if (currentCity == null) {
+                    currentCity = "Unknown";
+                }
+                fetchWeatherData();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            currentCity = "Unknown";
+            fetchWeatherData();
+        }
+    }
+
+
+    private void requestLocation() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    LOCATION_PERMISSION_REQUEST_CODE);
+        } else {
+            getLastLocation();
+        }
+    }
 
     public void selectBottomNavItem(int itemId) {
         if (bottomNav != null) {
@@ -69,8 +160,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void fetchWeatherData() {
+        if (currentCity == null || currentCity.equals("Unknown")) {
+            weather = "-99°";
+            return;
+        }
+
         Call<WeatherResponse> call = weatherAPI.getCurrentWeather(
-                CITY_NAME,
+                currentCity,
                 API_KEY,
                 "metric"
         );
@@ -80,20 +176,13 @@ public class MainActivity extends AppCompatActivity {
             public void onResponse(Call<WeatherResponse> call, Response<WeatherResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     WeatherResponse weatherResponse = response.body();
-
                     int temperature = (int) Math.round(weatherResponse.main.temp);
-
-                    String temperatureText;
-                    if (temperature > 0) {
-                        temperatureText = "+" + temperature + "°";
-                    } else {
-                        temperatureText = temperature + "°";
-                    }
+                    String temperatureText = temperature > 0 ? "+" + temperature + "°" : temperature + "°";
 
                     runOnUiThread(() -> {
                         weather = temperatureText;
+                        updateFragments();
                     });
-
                 } else {
                     showError("Ошибка получения данных");
                 }
@@ -106,11 +195,23 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    private void updateFragments() {
+        // Notify all fragments that weather data has changed
+        for (Fragment fragment : getSupportFragmentManager().getFragments()) {
+            if (fragment instanceof WeatherUpdateListener) {
+                ((WeatherUpdateListener) fragment).onWeatherUpdated();
+            }
+        }
+    }
+
+    interface WeatherUpdateListener {
+        void onWeatherUpdated();
+    }
+
     private void showError(String message) {
         runOnUiThread(() -> {
             Toast.makeText(MainActivity.this, message, Toast.LENGTH_SHORT).show();
-            // Показываем значение по умолчанию при ошибке
-            weather = "0°";
+            weather = "-99°";
         });
     }
 

@@ -38,6 +38,7 @@ dependencies {
     implementation(libs.material)
     implementation(libs.activity)
     implementation(libs.retrofit)
+    implementation(libs.play.services.location)
     implementation(libs.converter.gson)
     implementation(libs.logging.interceptor)
     implementation(libs.constraintlayout)
