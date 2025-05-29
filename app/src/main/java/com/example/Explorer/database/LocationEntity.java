@@ -11,4 +11,5 @@ public class LocationEntity {
     public double latitude;
     public double longitude;
     public String name;
+    public long timestamp;
 }
