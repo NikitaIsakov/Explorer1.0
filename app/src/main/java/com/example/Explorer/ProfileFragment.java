@@ -10,8 +10,13 @@ import android.widget.TextView;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.example.Explorer.database.AppDatabase;
+import com.example.Explorer.database.UserEntity;
+
 public class ProfileFragment extends Fragment implements MainActivity.WeatherUpdateListener {
     private TextView temperatureTextView;
+    private TextView greetingTextView;
+    private AppDatabase database;
     private Button btnGo;
 
     @Override
@@ -27,16 +32,19 @@ public class ProfileFragment extends Fragment implements MainActivity.WeatherUpd
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
 
+        database = AppDatabase.getDatabase(requireContext());
         temperatureTextView = view.findViewById(R.id.weather_0);
+        greetingTextView = view.findViewById(R.id.greeting);
         btnGo = view.findViewById(R.id.btn_go);
 
-        // Get initial weather value
         if (getActivity() instanceof MainActivity) {
             String weather = ((MainActivity) getActivity()).getWeather();
             if (weather != null) {
                 temperatureTextView.setText(weather);
             }
         }
+
+        loadUsername();
 
         btnGo.setOnClickListener(v -> {
             FragmentTransaction transaction = requireActivity()
@@ -52,6 +60,16 @@ public class ProfileFragment extends Fragment implements MainActivity.WeatherUpd
         });
 
         return view;
+    }
+
+    private void loadUsername() {
+        new Thread(() -> {
+            UserEntity user = database.userDao().getUser();
+            if (user != null && greetingTextView != null) {
+                String greeting = "Привет, " + user.username + "!\nПродолжи исследовать город и открывать карту";
+                greetingTextView.post(() -> greetingTextView.setText(greeting));
+            }
+        }).start();
     }
 
     @Override
