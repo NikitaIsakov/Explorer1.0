@@ -32,68 +32,55 @@
         app:layout_constraintVertical_bias="0.105" />
 
     <TextView
-        android:id="@+id/textView3"
+        android:id="@+id/visitedPOIsText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Открытых мест: 1/1459"
+        android:text="Открытых мест:"
         android:textColor="@color/colorText"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.141"
+        app:layout_constraintHorizontal_bias="0.118"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.228" />
-
-    <TextView
-        android:id="@+id/textView4"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="Пройдено шагов: 100"
-        android:textColor="@color/colorText"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.14"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView3"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintVertical_bias="0.198" />
 
     <TextView
         android:id="@+id/textView5"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="364dp"
+        android:layout_marginBottom="464dp"
         android:text="Последнее открытое место:"
         android:textColor="@color/colorText"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.16"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView4"
-        app:layout_constraintVertical_bias="0.351" />
+        app:layout_constraintTop_toBottomOf="@+id/visitedPOIsText"
+        app:layout_constraintVertical_bias="0.943" />
 
     <TextView
-        android:id="@+id/textView6"
+        android:id="@+id/lastVisitedText"
         android:layout_width="279dp"
         android:layout_height="33dp"
-        android:text="Красноярский художественный музей имени Василия Ивановича Сурикова"
+        android:text="Места еще не открыты"
         android:textColor="@color/colorText"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.272"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView5"
-        app:layout_constraintVertical_bias="0.061" />
+        app:layout_constraintVertical_bias="0.038" />
 
     <ImageView
-        android:id="@+id/imageView6"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/image_2"
+        android:id="@+id/lastVisitedImage"
+        android:layout_width="340dp"
+        android:layout_height="250dp"
+        android:src="@drawable/img"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.507"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.756" />
+        app:layout_constraintVertical_bias="0.76" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

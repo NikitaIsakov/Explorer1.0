@@ -1,5 +1,7 @@
 [versions]
 agp = "8.10.0"
+core = "1.16.0"
+json = "20230618"
 junit = "4.13.2"
 junitVersion = "1.2.1"
 espressoCore = "3.6.1"
@@ -10,7 +12,9 @@ mapsMobileVersion = "4.15.0-full"
 material = "1.12.0"
 activity = "1.10.1"
 constraintlayout = "2.2.1"
+okhttp = "4.10.0"
 osmdroidAndroid = "6.1.16"
+picasso = "2.8"
 playServicesLocation = "21.3.0"
 retrofit = "2.9.0"
 roomRuntime = "2.7.1"
@@ -18,6 +22,8 @@ yandex-mapkit = "4.5.0-full"
 
 [libraries]
 converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "retrofit" }
+core = { module = "androidx.core:core", version.ref = "core" }
+json = { module = "org.json:json", version.ref = "json" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
@@ -29,8 +35,10 @@ material = { group = "com.google.android.material", name = "material", version.r
 activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
 constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
 maps-mobile = { group = "com.yandex.android", name = "maps.mobile", version.ref = "yandex-mapkit" }
+okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
 osmdroid-android = { module = "org.osmdroid:osmdroid-android", version.ref = "osmdroidAndroid" }
 #room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomRuntime" }
+picasso = { module = "com.squareup.picasso:picasso", version.ref = "picasso" }
 play-services-location = { module = "com.google.android.gms:play-services-location", version.ref = "playServicesLocation" }
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomRuntime" }

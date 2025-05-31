@@ -5,15 +5,19 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
 
 import com.example.Explorer.database.AppDatabase;
 import com.example.Explorer.database.UserEntity;
 
+import java.util.Objects;
+
 public class SettingsFragment extends Fragment {
     private EditText usernameEditText;
     private AppDatabase database;
+    UserEntity user;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -23,6 +27,15 @@ public class SettingsFragment extends Fragment {
         database = AppDatabase.getDatabase(requireContext());
         usernameEditText = view.findViewById(R.id.editTextText);
 
+        TextView temperatureTextView = view.findViewById(R.id.weather_1);
+
+        if (getActivity() instanceof MainActivity) {
+            String weather = ((MainActivity) getActivity()).getWeather();
+            if (weather != null) {
+                temperatureTextView.setText(weather);
+            }
+        }
+
         loadUsername();
 
         return view;
@@ -30,7 +43,7 @@ public class SettingsFragment extends Fragment {
 
     private void loadUsername() {
         new Thread(() -> {
-            UserEntity user = database.userDao().getUser();
+            user = database.userDao().getUser();
             if (user != null && usernameEditText != null) {
                 usernameEditText.post(() -> usernameEditText.setText(user.username));
             }
@@ -45,7 +58,7 @@ public class SettingsFragment extends Fragment {
 
     private void saveUsername() {
         String username = usernameEditText.getText().toString().trim();
-        if (!username.isEmpty()) {
+        if (!username.isEmpty() && !Objects.equals(user.username, username)) {
             new Thread(() -> {
                 UserEntity user = new UserEntity();
                 user.username = username;

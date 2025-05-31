@@ -19,11 +19,14 @@ public class ProfileFragment extends Fragment implements MainActivity.WeatherUpd
     private AppDatabase database;
     private Button btnGo;
 
+    private String cityname;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getActivity() instanceof MainActivity) {
             ((MainActivity) getActivity()).getWeather();
+            cityname = ((MainActivity) getActivity()).getCurrentCity();
         }
     }
 
@@ -66,7 +69,7 @@ public class ProfileFragment extends Fragment implements MainActivity.WeatherUpd
         new Thread(() -> {
             UserEntity user = database.userDao().getUser();
             if (user != null && greetingTextView != null) {
-                String greeting = "Привет, " + user.username + "!\nПродолжи исследовать город и открывать карту";
+                String greeting = "Привет, " + user.username + "!\nПродолжи исследовать город и открывать карту \n Твой город: " + cityname;
                 greetingTextView.post(() -> greetingTextView.setText(greeting));
             }
         }).start();

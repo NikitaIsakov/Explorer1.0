@@ -10,6 +10,6 @@ public interface UserDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insert(UserEntity user);
 
-    @Query("SELECT * FROM users LIMIT 1")
+    @Query("SELECT * FROM users ORDER BY id DESC LIMIT 1")
     UserEntity getUser();
 }

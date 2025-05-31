@@ -177,8 +177,7 @@ public class MainActivity extends AppCompatActivity {
                 if (response.isSuccessful() && response.body() != null) {
                     WeatherResponse weatherResponse = response.body();
                     int temperature = (int) Math.round(weatherResponse.main.temp);
-                    String temperatureText = temperature > 0 ? "+" + temperature + "°" : temperature + "°";
-
+                    String temperatureText = temperature + "°";
                     runOnUiThread(() -> {
                         weather = temperatureText;
                         updateFragments();
@@ -202,6 +201,10 @@ public class MainActivity extends AppCompatActivity {
                 ((WeatherUpdateListener) fragment).onWeatherUpdated();
             }
         }
+    }
+
+    public String getCurrentCity() {
+        return currentCity;
     }
 
     interface WeatherUpdateListener {
