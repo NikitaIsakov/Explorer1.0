@@ -46,6 +46,8 @@ public class SettingsFragment extends Fragment {
             user = database.userDao().getUser();
             if (user != null && usernameEditText != null) {
                 usernameEditText.post(() -> usernameEditText.setText(user.username));
+            } else {
+                user = new UserEntity();
             }
         }).start();
     }
